@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setlist - programbeskrivning</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #181c20;
+      --panel-2: #20262b;
+      --text: #eef2f4;
+      --muted: #a8b2ba;
+      --line: #33404a;
+      --accent: #5bb7d8;
+      --accent-2: #f05d50;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(91, 183, 216, 0.14), transparent 34rem),
+        linear-gradient(180deg, #111417 0%, var(--bg) 45%, #0b0d0f 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 28px;
+      margin-bottom: 28px;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 4.6rem);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .lead {
+      max-width: 720px;
+      margin-top: 18px;
+      font-size: 1.15rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    section {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    kbd {
+      display: inline-block;
+      min-width: 1.8em;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid #53616b;
+      border-bottom-color: #303941;
+      border-radius: 5px;
+      background: #0c0f11;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.9em;
+      text-align: center;
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding-left: 44px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #071014;
+      font-weight: 700;
+      text-align: center;
+      line-height: 28px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent-2);
+      background: rgba(240, 93, 80, 0.08);
+    }
+
+    .downloads {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .download {
+      display: flex;
+      min-height: 132px;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(12, 15, 17, 0.42);
+      padding: 16px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .download strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .download span {
+      color: var(--muted);
+    }
+
+    .download em {
+      align-self: flex-start;
+      border-radius: 5px;
+      background: var(--accent);
+      color: #071014;
+      font-style: normal;
+      font-weight: 700;
+      padding: 0.4rem 0.7rem;
+    }
+
+    .download:hover,
+    .download:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 24px, 980px);
+        padding: 32px 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .downloads {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Setlist</h1>
+      <p class="lead">Ett enkelt program för att bygga, spara och visa setlists med PDF-noter i helskärm.</p>
+    </header>
+
+    <div class="grid">
+      <section>
+        <h2>Vad programmet gör</h2>
+        <ul>
+          <li>Letar upp PDF-filer i en vald folder.</li>
+          <li>Låter dig bygga en setlist genom att lägga till titlar i valfri ordning.</li>
+          <li>Sparar flera namngivna setlists.</li>
+          <li>Visar PDF:er i helskärm för spelning eller repetition.</li>
+          <li>Stödjer anteckningar per PDF, sida och setlist.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Setlists</h2>
+        <ul>
+          <li>Skapa ny setlist via <strong>Setlist &gt; Ny setlist...</strong>.</li>
+          <li>Spara aktuell setlist via <strong>Setlist &gt; Spara setlist</strong>.</li>
+          <li>Öppna sparade setlists via <strong>Setlist &gt; Sparade</strong>.</li>
+          <li>Byt namn via <strong>Setlist &gt; Byt namn på setlist...</strong>.</li>
+        </ul>
+      </section>
+
+      <section class="wide">
+        <h2>Grundflöde</h2>
+        <ol class="steps">
+          <li>Välj <strong>Arkiv &gt; Öppna folder med PDF...</strong> och markera foldern med dina noter.</li>
+          <li>Markera en titel i listan till vänster och klicka <strong>Lägg till &gt;</strong>.</li>
+          <li>Ändra ordning med <strong>Upp</strong> och <strong>Ner</strong>, eller ta bort med <strong>&lt; Ta bort</strong>.</li>
+          <li>Dubbelklicka en titel i setlisten för att visa den i helskärm.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Visning</h2>
+        <ul>
+          <li>Klicka höger halva av skärmen för nästa sida eller nästa PDF.</li>
+          <li>Klicka vänster halva för föregående sida eller PDF.</li>
+          <li>Växla vy via <strong>Vy &gt; Stående</strong> eller <strong>Vy &gt; Liggande</strong>.</li>
+          <li>Aktuell setlist visas i menyraden.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Anteckningar</h2>
+        <ul>
+          <li>Öppna en sparad setlist och visa en PDF från setlisten.</li>
+          <li>Aktivera <strong>Setlist &gt; Anteckningsläge</strong> eller tryck <kbd>a</kbd>.</li>
+          <li>Rita direkt på PDF:en med musen.</li>
+          <li>Ångra senaste strecket med <kbd>Ctrl</kbd> + <kbd>Z</kbd>.</li>
+          <li>Ta bort aktuell sidas anteckningar via <strong>Setlist &gt; Ta bort anteckning</strong>.</li>
+        </ul>
+      </section>
+
+      <section class="wide">
+        <h2>Snabbkommandon</h2>
+        <ul>
+          <li><kbd>Esc</kbd> lämnar helskärm.</li>
+          <li><kbd>F11</kbd> växlar helskärm.</li>
+          <li><kbd>→</kbd> eller <kbd>Space</kbd> går framåt.</li>
+          <li><kbd>←</kbd> går bakåt.</li>
+          <li><kbd>s</kbd> väljer stående vy.</li>
+          <li><kbd>l</kbd> väljer liggande vy.</li>
+          <li><kbd>a</kbd> växlar anteckningsläge.</li>
+        </ul>
+      </section>
+
+      <section class="wide">
+        <h2>Installation</h2>
+        <p>Ladda ned paketet för ditt operativsystem. På Linux packar du upp filen och kör <strong>install.sh</strong>. På Windows startar du <strong>Setlist.exe</strong>. På macOS öppnar du DMG-filen och startar <strong>Setlist.app</strong>.</p>
+
+        <div class="downloads">
+          <a class="download" href="dist/Setlist-windows-x64.zip" download>
+            <span>
+              <strong>Windows</strong>
+              ZIP-paket med Setlist.exe
+            </span>
+            <em>Ladda ned</em>
+          </a>
+
+          <a class="download" href="dist/Setlist-macos.dmg" download>
+            <span>
+              <strong>macOS</strong>
+              DMG-paket med Setlist.app
+            </span>
+            <em>Ladda ned</em>
+          </a>
+
+          <a class="download" href="dist/Setlist-linux-x86_64.tar.gz" download>
+            <span>
+              <strong>Linux</strong>
+              tar.gz-paket med install.sh
+            </span>
+            <em>Ladda ned</em>
+          </a>
+        </div>
+      </section>
+
+      <section class="wide note">
+        <h2>Sparad data</h2>
+        <p>Setlists och anteckningar sparas lokalt. När programmet körs från källkod används <strong>setlists.json</strong> i projektmappen. Installerade appar sparar i användarens appdata. Själva PDF-filerna ändras inte.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

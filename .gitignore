@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+build/
+dist/
+*.pyc
+
+.vscode/
+
+setlists.json
+NoterC/
+*.pdf
+
+.codex
+.agents
