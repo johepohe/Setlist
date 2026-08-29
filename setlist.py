@@ -76,7 +76,7 @@ class SetlistApp:
         self.current_page_index = 0
         self.current_document: fitz.Document | None = None
         self.current_photo: tk.PhotoImage | None = None
-        self.view_orientation = tk.StringVar(value="portrait")
+        self.view_orientation = tk.StringVar(value="landscape")
         self.fullscreen = False
         self.viewer_is_setlist = False
         self.annotation_mode = False
@@ -93,11 +93,11 @@ class SetlistApp:
     def _build_menu(self) -> None:
         menu_bar = tk.Menu(self.root)
         self.menu_bar = menu_bar
-        archive_menu = tk.Menu(menu_bar, tearoff=False)
-        archive_menu.add_command(label="Öppna folder med PDF...", command=self.open_folder)
-        archive_menu.add_separator()
-        archive_menu.add_command(label="Avsluta", command=self.root.destroy)
-        menu_bar.add_cascade(label="Arkiv", menu=archive_menu)
+        self.archive_menu = tk.Menu(menu_bar, tearoff=False)
+        self.archive_menu.add_command(label="Öppna folder med PDF...", command=self.open_folder)
+        self.archive_menu.add_separator()
+        self.archive_menu.add_command(label="Avsluta", command=self.root.destroy)
+        menu_bar.add_cascade(label="Arkiv", menu=self.archive_menu)
 
         self.setlist_menu = tk.Menu(menu_bar, tearoff=False)
         self.setlist_menu.add_command(label="Ny setlist...", command=self.new_setlist)
@@ -115,20 +115,20 @@ class SetlistApp:
         self.setlist_name_menu_index = menu_bar.index(tk.END) + 1
         menu_bar.add_command(label="Ingen setlist", state=tk.DISABLED)
 
-        view_menu = tk.Menu(menu_bar, tearoff=False)
-        view_menu.add_radiobutton(
+        self.view_menu = tk.Menu(menu_bar, tearoff=False)
+        self.view_menu.add_radiobutton(
             label="Stående",
             variable=self.view_orientation,
             value="portrait",
             command=self.set_view_orientation,
         )
-        view_menu.add_radiobutton(
+        self.view_menu.add_radiobutton(
             label="Liggande",
             variable=self.view_orientation,
             value="landscape",
             command=self.set_view_orientation,
         )
-        menu_bar.add_cascade(label="Vy", menu=view_menu)
+        menu_bar.add_cascade(label="Vy", menu=self.view_menu)
 
         self.root.config(menu=menu_bar)
 
@@ -299,6 +299,11 @@ class SetlistApp:
         )
         if hasattr(self, "setlist_name_menu_index"):
             self.menu_bar.entryconfig(self.setlist_name_menu_index, label=f"     {setlist_name}     ")
+        if (
+            hasattr(self, "fullscreen_setlist_label")
+            and self.fullscreen_setlist_label.winfo_exists()
+        ):
+            self.fullscreen_setlist_label.config(text=setlist_name)
 
     def load_setlists(self) -> dict[str, list[Path]]:
         if not SETLISTS_FILE.exists():
@@ -548,8 +553,34 @@ class SetlistApp:
             self.viewer_frame.destroy()
 
         self.main_frame.pack_forget()
+        # The native menu can only be horizontal. Hide it in fullscreen and
+        # expose the same menus in a compact bar along the right-hand edge.
+        self.root.config(menu="")
         self.viewer_frame = tk.Frame(self.root, bg="black")
         self.viewer_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.fullscreen_menu_bar = tk.Frame(
+            self.viewer_frame,
+            bg="#202326",
+            width=104,
+            padx=6,
+            pady=8,
+        )
+        self.fullscreen_menu_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.fullscreen_menu_bar.pack_propagate(False)
+        self._add_fullscreen_menu_button("Arkiv", self.archive_menu)
+        self._add_fullscreen_menu_button("Setlist", self.setlist_menu)
+        self.fullscreen_setlist_label = tk.Label(
+            self.fullscreen_menu_bar,
+            text=self.current_setlist_name or "Ingen setlist",
+            bg="#202326",
+            fg="#b9c0c5",
+            wraplength=88,
+            justify=tk.CENTER,
+            pady=10,
+        )
+        self.fullscreen_setlist_label.pack(fill=tk.X)
+        self._add_fullscreen_menu_button("Vy", self.view_menu)
 
         self.pdf_canvas = tk.Canvas(
             self.viewer_frame,
@@ -570,6 +601,31 @@ class SetlistApp:
         self.focus_viewer()
         self.root.after_idle(self.focus_viewer)
 
+    def _add_fullscreen_menu_button(self, text: str, menu: tk.Menu) -> None:
+        button = tk.Button(
+            self.fullscreen_menu_bar,
+            text=text,
+            bg="#30353a",
+            fg="white",
+            activebackground="#46505a",
+            activeforeground="white",
+            relief=tk.FLAT,
+            borderwidth=0,
+            padx=8,
+            pady=10,
+            takefocus=False,
+        )
+        button.config(command=lambda: self._show_fullscreen_menu(menu, button))
+        button.pack(fill=tk.X, pady=(0, 6))
+
+    def _show_fullscreen_menu(self, menu: tk.Menu, anchor: tk.Widget) -> None:
+        menu.update_idletasks()
+        x = max(0, anchor.winfo_rootx() - menu.winfo_reqwidth())
+        try:
+            menu.tk_popup(x, anchor.winfo_rooty())
+        finally:
+            menu.grab_release()
+
     def exit_fullscreen(self) -> None:
         if not self.fullscreen:
             return
@@ -578,6 +634,9 @@ class SetlistApp:
         self.root.attributes("-fullscreen", False)
         if hasattr(self, "viewer_frame"):
             self.viewer_frame.destroy()
+        if hasattr(self, "fullscreen_setlist_label"):
+            del self.fullscreen_setlist_label
+        self.root.config(menu=self.menu_bar)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
     def focus_viewer(self) -> None:
