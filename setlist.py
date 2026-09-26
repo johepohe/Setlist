@@ -621,10 +621,9 @@ class SetlistApp:
     def _show_fullscreen_menu(self, menu: tk.Menu, anchor: tk.Widget) -> None:
         menu.update_idletasks()
         x = max(0, anchor.winfo_rootx() - menu.winfo_reqwidth())
-        try:
-            menu.tk_popup(x, anchor.winfo_rooty())
-        finally:
-            menu.grab_release()
+        # Keep Tk's popup grab until dismissal so outside clicks close the menu.
+        # Tk releases the grab when an item is chosen or the popup is cancelled.
+        menu.tk_popup(x, anchor.winfo_rooty())
 
     def exit_fullscreen(self) -> None:
         if not self.fullscreen:
